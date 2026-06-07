@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>车险佣金计算器 · 专业版</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;overflow:hidden}
+.app{height:100vh;display:flex;flex-direction:column;padding:6px 8px 4px;gap:4px}
+
+.da{text-align:right;padding:4px 6px;flex-shrink:0}
+.dl{font-size:10px;color:#555}
+.dv{font-size:28px;font-weight:700;color:#fff;line-height:1.1;letter-spacing:-1px}
+.ds{font-size:10px;color:#444;margin-top:2px}
+
+.tw{flex-shrink:0;padding:2px 0}
+.th{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:4px 6px;font-size:10px;color:#666;border-bottom:1px solid #1a1a1a}
+.tr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:center;padding:5px 6px;border-bottom:1px solid #0a0a0a}
+.rn{font-size:12px;color:#ccc;font-weight:500}
+
+.fb{
+  background:#2C2C2E;
+  border-radius:8px;
+  padding:8px 6px;
+  text-align:center;
+  font-size:13px;
+  color:#fff;
+  min-height:36px;
+  cursor:pointer;
+  transition:border-color .12s;
+  border:1.5px solid transparent;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-variant-numeric:tabular-nums;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.fb.ac{border-color:#FF9F0A;background:#3a2a0a}
+.fb:empty::before{content:'0';color:#333}
+.rb::before{content:none!important}
+
+.qw{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:5px 6px;flex-shrink:0;align-items:center}
+.ql{font-size:12px;color:#ccc;font-weight:500}
+.qf{
+  background:#2C2C2E;
+  border-radius:8px;
+  padding:8px 6px;
+  text-align:center;
+  font-size:13px;
+  color:#fff;
+  cursor:pointer;
+  border:1.5px solid transparent;
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.qf.ac{border-color:#FF9F0A;background:#3a2a0a}
+/* 移除快捷输入默认提示 */
+.qf:empty::before{content:''!important;color:#444;font-size:11px}
+
+.pr{display:grid;grid-template-columns:1fr 2fr;gap:6px;align-items:center;padding:5px 6px;flex-shrink:0}
+.pr .rn{font-size:11px;color:#aaa}
+
+.kp{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(5,1fr);
+  gap:5px;
+  padding:4px 2px 2px;
+  min-height:0;
+}
+.k{
+  border:none;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#333;
+  color:#fff;
+  user-select:none;
+  transition:transform .06s;
+  box-shadow:0 1px 3px rgba(0,0,0,.4);
+  overflow:hidden;
+  width:100%;
+  height:100%;
+}
+.k.sm{font-size:11px;}
+.k:active{transform:scale(.92);opacity:.7}
+.k.gy{background:#A5A5A5;color:#000}
+.k.or{background:#FF9F0A;color:#fff}
+.k.wd{
+  grid-column:span 2;
+  border-radius:12px;
+  aspect-ratio:auto;
+  justify-content:flex-start;
+  padding-left:20px;
+}
+
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:rgba(255,159,10,.95);color:#000;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;z-index:9999;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap}
+.toast.show{opacity:1}
+.po{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9998;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.po.show{opacity:1;pointer-events:auto}
+.pp{background:#1C1C1E;border-radius:14px;padding:14px;width:320px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 20px rgba(0,0,0,.6)}
+.pt{font-size:11px;color:#aaa;text-align:center;margin-bottom:10px;letter-spacing:.5px}
+.pl{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
+.pi{background:#2C2C2E;border:1px solid #3a3a3c;border-radius:8px;padding:10px 12px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;transition:all .1s}
+.pi:active{transform:scale(.98);background:#3a3a3c}
+.pi.ac{border-color:#FF9F0A;background:#3a2a0a}
+.pv{font-size:14px;font-weight:600;color:#fff;letter-spacing:.3px}
+.pn{font-size:10px;color:#FF9F0A;margin-top:2px}
+.pm{font-size:9px;color:#888;margin-top:2px}
+.pd{font-size:12px;color:#ff9f0a;background:transparent;border:none;padding:3px 8px;cursor:pointer;border-radius:14px;font-weight:600}
+.pd:hover{background:#3a3a0a}
+.pa{display:flex;gap:10px;margin-top:14px}
+.pa button{flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#2C2C2E;color:#aaa}
+.pa button.pri{background:#FF9F0A;color:#000}
+.ea{display:flex;flex-direction:column;gap:10px;margin-top:12px;background:#252528;padding:12px;border-radius:12px;margin-bottom:6px}
+.ea input{width:100%;background:#1C1C1E;border:1.5px solid #444;border-radius:8px;padding:10px 14px;font-size:13px;color:#fff;outline:none;box-sizing:border-box}
+.ea input:focus{border-color:#FF9F0A}
+.eb{display:flex;gap:10px}
+.eb button{flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.eb button:first-child{background:#FF9F0A;color:#000}
+.eb button:last-child{background:#3a3a3c;color:#ccc}
+.ms{font-size:10px;color:#555;text-align:center;padding:8px 0 6px;border-top:1px solid #333;margin-top:10px}
+.history-badge{color:#FF9F0A;font-size:10px;margin:6px 0 3px;padding-left:4px}
+.chk{width:18px;height:18px;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="da"><div class="dl">合计佣金 (税后/税前)</div><div class="dv" id="gD">¥0.00</div><div class="ds" id="mL">扣税模式 · 保费÷1.06</div></div>
+<div class="tw"><div class="th"><span>险种</span><span>保费(元)</span><span>点位%</span></div>
+<div class="tr"><span class="rn">交强险</span><div class="fb" id="pJ" onclick="sA('pJ')"></div><div class="fb rb" id="rJ" onclick="sA('rJ')"></div></div>
+<div class="tr"><span class="rn">商业险</span><div class="fb" id="pS" onclick="sA('pS')"></div><div class="fb rb" id="rS" onclick="sA('rS')"></div></div>
+<div class="tr"><span class="rn">驾乘险</span><div class="fb" id="pC" onclick="sA('pC')"></div><div class="fb rb" id="rC" onclick="sA('rC')"></div></div>
+<div class="tr"><span class="rn">车船税</span><div class="fb" id="pT" onclick="sA('pT')"></div><div class="fb rb" id="rT" onclick="sA('rT')"></div></div>
+</div>
+<div class="qw"><span class="ql">快捷输入</span><div class="qf" id="qP" onclick="sA('qP')"></div><div class="qf" id="qR" onclick="sA('qR')"></div></div>
+<div class="pr"><span class="rn">利润空间(抵扣)</span><div class="fb" id="pf" onclick="sA('pf')"></div></div>
+<div class="kp">
+<button class="k gy" onclick="kB()">⌫</button>
+<button class="k gy" onclick="kD()">—</button>
+<button class="k or sm" onclick="tRP()">📋 记忆</button>
+<button class="k or sm" onclick="aNP()">➕ 方案</button>
+<button class="k" onclick="kN('7')">7</button><button class="k" onclick="kN('8')">8</button><button class="k" onclick="kN('9')">9</button><button class="k or" onclick="kCA()">清除</button>
+<button class="k" onclick="kN('4')">4</button><button class="k" onclick="kN('5')">5</button><button class="k" onclick="kN('6')">6</button><button class="k or sm" id="kT" onclick="sM(1)">扣税</button>
+<button class="k" onclick="kN('1')">1</button><button class="k" onclick="kN('2')">2</button><button class="k" onclick="kN('3')">3</button><button class="k or sm" id="kN" onclick="sM(0)">不扣税</button>
+<button class="k wd" onclick="kN('0')">0</button><button class="k" onclick="kDt()">.</button><button class="k or" onclick="copyAll()">复制</button>
+</div></div>
+<div class="toast" id="toast"></div>
+<div class="po" id="poO" onclick="cRP(event)">
+<div class="pp" onclick="event.stopPropagation()">
+<div class="pt">📌 记忆 / 方案库</div>
+<div class="pl" id="pL"></div>
+<div class="ea" id="eR" style="display:none">
+<input type="text" id="eI" placeholder="点位组合 例: 12-13-16" maxlength="30" autocomplete="off">
+<input type="text" id="eN" placeholder="备注 (如: 漯河人保 返点高)" maxlength="16" autocomplete="off">
+<div class="eb"><button onclick="sRP()">✓ 保存方案</button><button onclick="cE()">取消</button></div>
+</div>
+<div class="pa">
+<button onclick="delSelected()">🗑️ 删除选中</button>
+<button onclick="aNP()">✨ 新增方案</button>
+<button class="pri" onclick="cRP()">关闭</button>
+</div>
+</div></div>
+<script>
+let aF='qP',sep=1;
+const TX=1.06;
+const P_FIELDS = ['pJ','pS','pC','pT'];
+const R_FIELDS = ['rJ','rS','rC','rT'];
+const COMM_R_FIELDS = ['rJ','rS','rC'];
+const QUICK_BATCH = ['qP','qR'];
+const ALL_EDIT = [...P_FIELDS, ...R_FIELDS, 'pf', 'qR', 'qP'];
+
+const gid = id => document.getElementById(id);
+const ls = window.localStorage;
+
+let historyMem = [];
+let savedPlans = [];
+let nextPlanId = 100;
+
+function getVal(id) {
+    const el = gid(id);
+    if(!el) return 0;
+    let txt = el.textContent.trim();
+    if(txt === '') return 0;
+    let num = parseFloat(txt);
+    return isNaN(num) ? 0 : num;
+}
+
+function setActive(id) {
+    aF = id;
+    document.querySelectorAll('.fb, .qf').forEach(el => el.classList.remove('ac'));
+    const target = gid(id);
+    if(target) target.classList.add('ac');
+}
+
+// 数字按键 输入+实时计算
+function kN(n) {
+    const el = gid(aF);
+    if(!el) return;
+    let cur = el.textContent;
+    if(isQuickField(aF)) {
+        if(cur === '0' && n !== '0') cur = '';
+        if(cur === '') {
+            el.textContent = n;
+            adjustCursor(el);
+            autoFillFromQuick();
+            calcAll();
+            return;
+        }
+        el.textContent = cur + n;
+        adjustCursor(el);
+        autoFillFromQuick();
+        calcAll();
+        if(aF === 'qR') {
+            let parts = el.textContent.split('-');
+            if(parts[parts.length-1].length >= 2 && parts.length < COMM_R_FIELDS.length) {
+                el.textContent += '-';
+                adjustCursor(el);
+                calcAll();
+            }
+        }
+        return;
+    }
+    if(cur === '0' && n !== '0') cur = '';
+    if(cur === '' && n === '0') {
+        el.textContent = '0';
+        moveCursorEnd(el);
+        calcAll();
+        return;
+    }
+    el.textContent = cur + n;
+    moveCursorEnd(el);
+    syncQuickFromFields();
+    calcAll();
+}
+
+// 小数点
+function kDt() {
+    const el = gid(aF);
+    if(!el) return;
+    let cur = el.textContent.trim();
+    if(cur === '') {
+        el.textContent = '0.';
+        autoFillFromQuick();
+        moveCursorEnd(el);
+        calcAll();
+        return;
+    }
+    if(!cur.includes('.')) {
+        el.textContent = cur + '.';
+        autoFillFromQuick();
+        moveCursorEnd(el);
+        calcAll();
+    }
+}
+
+// 分隔符 -
+function kD() {
+    if(isQuickField(aF)) {
+        const el = gid(aF);
+        if(!el) return;
+        let cur = el.textContent;
+        if(cur === '' || cur === '0') return;
+        if(!cur.endsWith('-')) {
+            el.textContent = cur + '-';
+            moveCursorEnd(el);
+            autoFillFromQuick();
+            calcAll();
+        }
+        return;
+    }
+    kDt();
+}
+
+// 退格
+function kB() {
+    const el = gid(aF);
+    if(!el) return;
+    let cur = el.textContent.trim();
+    if(cur.length <= 1) {
+        el.textContent = '';
+        if(isQuickField(aF)) autoFillFromQuick(); else syncQuickFromFields();
+        calcAll();
+        return;
+    }
+    el.textContent = cur.slice(0, -1);
+    if(isQuickField(aF)) {
+        moveCursorEnd(el);
+        autoFillFromQuick();
+    } else {
+        moveCursorEnd(el);
+        syncQuickFromFields();
+    }
+    calcAll();
+}
+
+// 清空
+function kCA() {
+    [...P_FIELDS, ...R_FIELDS, 'pf'].forEach(id => {
+        const e = gid(id);
+        if(e) e.textContent = '';
+    });
+    gid('qP').textContent = '';
+    gid('qR').textContent = '';
+    calcAll();
+    setActive('qP');
+}
+
+function batchFillFromQuick(sourceId, targetIds) {
+    const el = gid(sourceId);
+    let content = el.textContent.trim();
+    if(!content) return;
+    let parts = content.split(/[-\s]+/).filter(p => p.trim() !== '').map(p => parseFloat(p));
+    for(let i=0; i<targetIds.length; i++) {
+        let target = gid(targetIds[i]);
+        if(target && i < parts.length && !isNaN(parts[i])) {
+            target.textContent = parts[i];
+        }
+    }
+    el.textContent = '';
+    calcAll();
+}
+
+function syncQuickFromFields() {
+    let 保费值 = P_FIELDS.map(id => getVal(id)).join('-');
+    gid('qP').textContent = 保费值;
+    let 点位值 = COMM_R_FIELDS.map(id => getVal(id)).join('-');
+    gid('qR').textContent = 点位值;
+}
+
+function autoFillFromQuick() {
+    if(aF === 'qP') {
+        let content = gid('qP').textContent;
+        if(content && content.includes('-')) {
+            let parts = content.split(/[-\s]+/).filter(p => p!=='');
+            for(let i=0; i<P_FIELDS.length; i++) {
+                if(i < parts.length) {
+                    let num = parseFloat(parts[i]);
+                    if(!isNaN(num)) gid(P_FIELDS[i]).textContent = num;
+                }
+            }
+        }
+    } else if(aF === 'qR') {
+        let content = gid('qR').textContent;
+        if(content && content.includes('-')) {
+            let parts = content.split(/[-\s]+/).filter(p => p!=='');
+            for(let i=0; i<COMM_R_FIELDS.length; i++) {
+                let num = parseFloat(parts[i]);
+                if(!isNaN(num)) gid(COMM_R_FIELDS[i]).textContent = num;
+            }
+        }
+    }
+}
+
+// 核心计算函数
+function calcAll() {
+    let totalComm = 0;
+    let commList = [];
+    const names = ['交强险', '商业险', '驾乘险'];
+    const rateList = [getVal('rJ'), getVal('rS'), getVal('rC')];
+    for(let i=0; i<COMM_R_FIELDS.length; i++) {
+        let premium = getVal(P_FIELDS[i]);
+        let rate = rateList[i];
+        let comm = 0;
+        if(premium && rate) {
+            if(sep === 1) {
+                comm = Math.round((premium / TX) * (rate / 100) * 100) / 100;
+            } else {
+                comm = Math.round(premium * (rate / 100) * 100) / 100;
+            }
+            totalComm += comm;
+        }
+        commList.push({name: names[i], premium, rate, comm});
+    }
+    commList.push({name: '车船税', premium: getVal(P_FIELDS[3]), rate: 0, comm: 0});
+
+    let deduct = getVal('pf');
+    let finalComm = deduct > 0 ? Math.max(0, totalComm - deduct) : totalComm;
+    gid('gD').textContent = '¥' + finalComm.toFixed(2);
+    let modeText = sep ? '扣税模式 · 保费÷1.06' : '不扣税模式 · 全额佣金';
+    gid('mL').textContent = modeText + (deduct>0 ? `  (抵扣 ${deduct}元)` : '');
+
+    window.currentDetail = commList;
+    window.currentTotal = finalComm;
+    window.currentMode = sep;
+    window.currentDeduct = deduct;
+}
+
+// 复制功能
+async function copyAll() {
+    calcAll();
+    let list = window.currentDetail;
+    let modeStr = window.currentMode ? '(扣税模式)' : '(不扣税模式)';
+    let deduct = window.currentDeduct;
+    let deductStr = deduct > 0 ? `，已抵扣${deduct}元` : '';
+
+    let text = '';
+    list.forEach(item => {
+        text += `${item.name}：保费${item.premium}元，点位${item.rate}%，佣金${item.comm.toFixed(2)}元\n`;
+    });
+    text += `---\n`;
+    let totalPremium = list.reduce((sum, item) => sum + item.premium, 0);
+    text += `合计：保费${totalPremium}元，合计佣金${window.currentTotal.toFixed(2)}元 ${modeStr}${deductStr}`;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('✅ 已复制到剪贴板');
+    } catch(e) {
+        let ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('✅ 已复制到剪贴板');
+    }
+}
+
+// 切换扣税/不扣税
+function sM(val) {
+    sep = val;
+    const taxBtn = gid('kT');
+    const noTaxBtn = gid('kN');
+    if(sep) {
+        taxBtn.style.background = '#FF9F0A';
+        noTaxBtn.style.background = '#333';
+    } else {
+        taxBtn.style.background = '#333';
+        noTaxBtn.style.background = '#FF9F0A';
+    }
+    calcAll();
+}
+
+function fmtTime(ts) {
+    let d = new Date(ts);
+    return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function addCurrentToMemory() {
+    let currentRates = COMM_R_FIELDS.map(id => getVal(id));
+    if(currentRates.every(v=>v===0)) return false;
+    let keyStr = currentRates.join('_');
+    let exists = historyMem.some(m => m.rates.join('_') === keyStr);
+    if(!exists) {
+        let now = Date.now();
+        historyMem.unshift({
+            rates: currentRates,
+            timestamp: now,
+            time: fmtTime(now),
+            selected: false
+        });
+        if(historyMem.length > 30) historyMem.pop();
+        saveStorage();
+        return true;
+    }
+    return false;
+}
+
+function loadStorage() {
+    try {
+        let plansRaw = ls.getItem('car_pro_plans');
+        if(plansRaw) savedPlans = JSON.parse(plansRaw);
+        let memRaw = ls.getItem('car_pro_memory');
+        if(memRaw) historyMem = JSON.parse(memRaw);
+    } catch(e) {}
+    if(savedPlans.length) nextPlanId = Math.max(...savedPlans.map(p=>p.id), 99) + 1;
+    else nextPlanId = 101;
+}
+
+function saveStorage() {
+    try {
+        ls.setItem('car_pro_plans', JSON.stringify(savedPlans));
+        ls.setItem('car_pro_memory', JSON.stringify(historyMem));
+    } catch(e) {}
+}
+
+function renderPlanList() {
+    const container = gid('pL');
+    let html = '';
+    if(historyMem.length) {
+        html += `<div class="history-badge">🕘 最近记忆（可多选删除）</div>`;
+        historyMem.forEach((m, idx) => {
+            let display = m.rates.join(' - ') + ' %';
+            html += `<div class="pi" onclick="applyMemory(${idx})">
+                        <div style="display:flex;align-items:center">
+                            <input type="checkbox" class="chk" ${m.selected?'checked':''} onclick="event.stopPropagation();toggleSel(${idx})">
+                            <div>
+                                <div class="pv">${display}</div>
+                                <div class="pm">${m.time}</div>
+                            </div>
+                        </div>
+                        <button class="pd" onclick="event.stopPropagation();deleteMemory(${idx})">🗑️</button>
+                     </div>`;
+        });
+    }
+    if(savedPlans.length) {
+        if(historyMem.length) html += `<div class="ms">📂 我的方案</div>`;
+        savedPlans.forEach(plan => {
+            let rateShow = plan.rates.map(r=>r).join(' - ') + ' %';
+            html += `<div class="pi" onclick="applyPlan(${plan.id})">
+                        <div><div class="pv">${rateShow}</div><div class="pn">🏷️ ${escapeHtml(plan.name || '未命名')}</div></div>
+                        <button class="pd" onclick="event.stopPropagation();deletePlan(${plan.id})">✖️</button>
+                     </div>`;
+        });
+    }
+    if(!historyMem.length && !savedPlans.length) {
+        html = '<div style="color:#555;text-align:center;font-size:12px;padding:20px">暂无记录，填写点位后点“记忆”自动保存</div>';
+    }
+    container.innerHTML = html;
+}
+
+function toggleSel(idx) {
+    historyMem[idx].selected = !historyMem[idx].selected;
+    saveStorage();
+}
+
+function delSelected() {
+    historyMem = historyMem.filter(m => !m.selected);
+    saveStorage();
+    renderPlanList();
+}
+
+function closeModalForce() {
+    gid('poO').classList.remove('show');
+}
+
+function applyMemory(idx) {
+    if(idx >= historyMem.length) return;
+    let rates = historyMem[idx].rates;
+    applyRatesToFields(rates);
+    closeModalForce();
+}
+
+function applyPlan(id) {
+    let plan = savedPlans.find(p => p.id === id);
+    if(plan) {
+        applyRatesToFields(plan.rates);
+        closeModalForce();
+    }
+}
+
+function applyRatesToFields(rates) {
+    COMM_R_FIELDS.forEach((fieldId, idx) => {
+        if(idx < rates.length && rates[idx] !== undefined) {
+            let el = gid(fieldId);
+            if(el) el.textContent = rates[idx];
+        }
+    });
+    syncQuickFromFields();
+    calcAll();
+}
+
+function deleteMemory(idx) {
+    historyMem.splice(idx, 1);
+    saveStorage();
+    renderPlanList();
+}
+
+function deletePlan(id) {
+    savedPlans = savedPlans.filter(p => p.id !== id);
+    saveStorage();
+    renderPlanList();
+}
+
+function openAddPlan() {
+    gid('eR').style.display = 'flex';
+    gid('eI').value = '';
+    gid('eN').value = '';
+    gid('eI').focus();
+}
+
+function closeAddPlan() {
+    gid('eR').style.display = 'none';
+}
+
+function savePlanFromInput() {
+    let raw = gid('eI').value.trim();
+    if(!raw) return;
+    let parts = raw.split(/[-\s,，]+/).map(s=>parseFloat(s)).filter(v=>!isNaN(v));
+    if(parts.length === 0) return;
+    while(parts.length < 3) parts.push(parts[parts.length-1] || 0);
+    let finalRates = parts.slice(0,3);
+    let planName = gid('eN').value.trim();
+    if(!planName) planName = `方案${savedPlans.length+1}`;
+    savedPlans.push({ id: nextPlanId++, name: planName, rates: finalRates });
+    if(savedPlans.length > 40) savedPlans = savedPlans.slice(-35);
+    saveStorage();
+    renderPlanList();
+    closeAddPlan();
+}
+
+function showPlanModal() {
+    addCurrentToMemory();
+    renderPlanList();
+    closeAddPlan();
+    gid('poO').classList.add('show');
+}
+
+function closeModal(e) {
+    if(e && e.target !== gid('poO')) return;
+    gid('poO').classList.remove('show');
+}
+
+function addNewPlanPopup() {
+    openAddPlan();
+    gid('poO').classList.add('show');
+}
+
+window.tRP = showPlanModal;
+window.aNP = addNewPlanPopup;
+window.sRP = savePlanFromInput;
+window.cE = closeAddPlan;
+window.cRP = closeModal;
+window.applyMemory = applyMemory;
+window.applyPlan = applyPlan;
+window.deleteMemory = deleteMemory;
+window.deletePlan = deletePlan;
+window.toggleSel = toggleSel;
+window.delSelected = delSelected;
+window.sA = setActive;
+window.kN = kN;
+window.kDt = kDt;
+window.kD = kD;
+window.kB = kB;
+window.kCA = kCA;
+window.sM = sM;
+window.copyAll = copyAll;
+
+function isQuickField(id) { return QUICK_BATCH.includes(id); }
+function adjustCursor(el) { moveCursorEnd(el); }
+function moveCursorEnd(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+function showToast(msg) {
+    const toast = gid('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
+}
+function escapeHtml(str) { return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':m); }
+
+// 初始化
+loadStorage();
+setActive('qP');
+sM(1);
+syncQuickFromFields();
+calcAll();
+
+// 键盘监听
+document.addEventListener('keydown', e => {
+    if(e.target.tagName === 'INPUT') return;
+    const key = e.key;
+    if(key >= '0' && key <= '9') { e.preventDefault(); kN(key); }
+    else if(key === '.') { e.preventDefault(); kDt(); }
+    else if(key === 'Backspace') { e.preventDefault(); kB(); }
+    else if(key === 'Enter') { e.preventDefault(); copyAll(); }
+    else if(key === 'Escape') { e.preventDefault(); kCA(); }
+});
+</script>
+</body>
+</html>
